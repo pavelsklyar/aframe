@@ -1,21 +1,172 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <title>3D-modeling</title>
 
     <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-extras.ocean@%5E3.5.x/dist/aframe-extras.ocean.min.js"></script>
+    <script src="https://unpkg.com/aframe-particle-system-component@1.0.x/dist/aframe-particle-system-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-area-light-component/dist/aframe-area-light-component.min.js"></script>
+    <script src="src/glow.js"></script>
+    <script src="https://unpkg.com/aframe-event-set-component@^4.0.0/dist/aframe-event-set-component.min.js"></script>
+    <script src="https://rawgit.com/mayognaise/aframe-gif-component/master/dist/aframe-gif-component.min.js"></script>
+    <script src="https://rawgit.com/mayognaise/aframe-gif-shader/master/dist/aframe-gif-shader.min.js"></script>
+    <script>
+        AFRAME.registerComponent('sound-and-event', {
+            init: function () {
+              this.el.addEventListener('sound-ended', () => {
+              this.el.setAttribute('color', '#181818');
+              });
+            },
+          }); 
+      </script>
+      <script>
+        AFRAME.registerComponent("item-1", {
+          schema: {
+            width: { type: "number", default: 1 },
+            height: { type: "number", default: 1 },
+            depth: { type: "number", default: 1 },
+            color: { type: "color", default: "#AAA" }
+          },
+          init: function() {
+            var data = this.data;
+            var el = this.el;
+            this.geometry = new THREE.BoxBufferGeometry(
+              data.width,
+              data.height,
+              data.depth);
+            this.material = new THREE.MeshStandardMaterial({
+              color: data.color,
+              metalness: data.metalness});
+            this.mesh = new THREE.Mesh(this.geometry, this.material);
+            el.setObject3D("mesh", this.mesh);}
+        });
+  
+        AFRAME.registerComponent("item-2", {
+          schema: {
+            width: { type: "number", default: 1 },
+            height: { type: "number", default: 1 },
+            depth: { type: "number", default: 1 },
+            color: { type: "color", default: "#AAA" },
+            shader: { type: "string", default: "flat" }
+          },
+          init: function() {
+            var data = this.data;
+            var el = this.el;
+            this.geometry = new THREE.BoxBufferGeometry(
+              data.width,
+              data.height,
+              data.depth);
+            this.material = new THREE.MeshStandardMaterial({
+              color: data.color,
+              shader: data.shader});
+            this.mesh = new THREE.Mesh(this.geometry, this.material);
+            el.setObject3D("mesh", this.mesh);}
+        });
+      </script>
 </head>
 <body>
 <a-scene inspector="" keyboard-shortcuts="" screenshot="" vr-mode-ui="" device-orientation-permission-ui="">
-    <a-box position="0 0.75 0" rotation="" color="#4CC3D9" material="color: #5a81d6" geometry="" scale="2 1.5 2" id="house"></a-box>
-    <a-entity geometry="primitive: octahedron; radius: 0" position="0 1.5 0" material="color: #e9584a" rotation="0 45 0" scale="1.4 1 1.4" id="roof"></a-entity>
-    <a-entity id="door" geometry="" material="" position="0.39 0.25 1" scale="0.5 1 0.1"></a-entity>
-    <a-entity id="window" geometry="" material="" scale="0.5 0.5 0.1" position="-0.4 0.7 1"></a-entity>
 
-    <a-plane position="" rotation="-90 0 0" width="4" height="4" color="#7BC8A4" material="color: #6dc682" geometry="" visible="" scale="2 2 1" id="grass"></a-plane>
-    <a-sky color="#ECECEC" material="" geometry=""></a-sky>
-    <div class="a-loader-title" style="display: none;">3D-modeling</div>
+    <!-- Общая настройка сцены -->
+    <!-- <a-camera id="camera" position="0 1.5 7">
+        <a-cursor color="#4CC3D9"></a-cursor>
+    </a-camera> -->
+    <a-entity position="0 0 7">
+        <a-camera id="camera">
+          <a-cursor color="#4CC3D9"></a-cursor>
+        </a-camera>
+      </a-entity>
+    <a-light color="#c9bdb0" type="ambient" aframe-injected="" visible=""></a-light>
+    <a-light color= "#a17874" intensity= "0.5" castShadow= "true" position="0.1 0.1 1" aframe-injected="" visible=""></a-light>
+    <a-assets>
+        <audio controls>
+          <source src="https://upload.wikimedia.org/wikipedia/commons/7/76/Un_Canadien_errant.ogg" type="audio/ogg" preload="auto">
+        </audio>
+    </a-assets>
+
+    <!-- Настройка окружения -->
+    <a-plane position="0.0001 0 0" rotation="-90 0 0" color="#cdccce" scale="30 30 1"
+    material="src:  https://images.unsplash.com/photo-1567459169668-95d355371bda?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1949&q=80"></a-plane>
+    <a-sky material="src: https://images.unsplash.com/photo-1499346030926-9a72daac6c63?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80"></a-sky>
+    <a-entity id="rain" particle-system="preset: rain; color: #24CAFF; particleCount: 3000"></a-entity>
+   
+    <!-- Дом -->
+    <a-box id="house" scale="2 1.5 2" position="0 0.75 0" 
+    material="src: https://images.unsplash.com/photo-1495578942200-c5f5d2137def?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1954&q=80"></a-box>
+    <a-octahedron id="roof" position="0 1.5 0"  rotation="0 45 0" scale="1.4 1 1.4" color="#a6a5a7"
+    material="src: https://images.unsplash.com/photo-1550002226-85c974a60c52?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80"></a-octahedron>
+    <a-box id="door" color="#c6c5c7" position="0.39 0.25 1" scale="0.5 1 0.1" 
+    material="src: https://images.unsplash.com/photo-1547998872-71a44f061d5a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=975&q=80"></a-box>
+    <a-box id="window" color="#cbcacc" scale="0.5 0.5 0.1" position="-0.4 0.7 1" 
+    material="src: https://images.unsplash.com/photo-1496092607007-ca127e0b6a10?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1985&q=80"></a-box>
+    <a-entity id="light" area-light="intensity: 5; width: 1; height: 1; color: #7d0e01" rotation="180 0 180" position="0.7 0.7 0.8" scale="1.5 1.5 1.5"></a-entity>
+
+    <!-- Водоем -->
+    <a-box position="-1.06 0 0"  width="0.1" height="0.7" depth="2" color="#a6a5a7"
+    material="src: https://images.unsplash.com/photo-1550002226-85c974a60c52?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80"></a-box>
+    <a-box position="-3.06 0 0"  width="0.1" height="0.7" depth="2" color="#a6a5a7"
+    material="src: https://images.unsplash.com/photo-1550002226-85c974a60c52?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80"></a-box>
+    <a-box position="-2.06 0 0.95" rotation="0 90 0"  width="0.1" height="0.7" depth="2" color="#a6a5a7"
+    material="src: https://images.unsplash.com/photo-1550002226-85c974a60c52?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80"></a-box>
+    <a-box position="-2.06 0 -0.95" rotation="0 90 0" width="0.1" height="0.7" depth="2" color="#a6a5a7"
+    material="src: https://images.unsplash.com/photo-1550002226-85c974a60c52?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80"></a-box>
+    <a-ocean position="-2.06 0.3 0" density="4" color="#6897BB" depth="2" width="2" ocean=""></a-ocean>
+
+    <!-- Собака с анимацией и музыкой -->
+    <a-entity gltf-model="https://poly.googleusercontent.com/downloads/c/fp/1587858193660595/cTy5Piz5p8U/2jn3CQKdFx7/model.gltf" sound="src: https://upload.wikimedia.org/wikipedia/commons/9/9a/Woof_%28Gravity_Sound%29.wav; autoplay: true; loop: true"; scale="1.5 1.5 1.5" position="5 -2 -1" rotation="0 -110 0" animation="property: rotation; to: 0 270 0; loop: true; dur: 5000"></a-entity>
+
+    <!-- Дерево -->
+    <a-entity gltf-model=   "https://poly.googleusercontent.com/downloads/c/fp/1590142760753400/cpg6wP8JCyQ/8mV7162ZqUF/AppleTree.gltf"
+    shadow="receive: true" scale="0.5 0.5 0.5" position="-3 0 -4">
+    </a-entity>
+
+    <!-- Writing a Component -->
+    <a-entity
+    item-1="width: 0.4; height: 0.5; depth: 0.5; color: grey, metalness: 0.1"
+    position="4 0 4"></a-entity>
+    <a-entity
+    item-2="width: 0.4; height: 0.5; depth: 0.5; color: grey; shader: flat"
+    position="3 0 4"></a-entity>
+ 
+    <!-- Наведение мышки -->
+    <a-entity position="-2 0 4">
+    <a-text value="Hover" color="black" scale="0.7 0.7 0.7" position="-0.13 0.17 0.4"></a-text>
+    <a-box position="0 0 0" scale="0.5 0.5 0.5" rotation="0 0 0" color="#a6a5a7"
+    material="src: https://images.unsplash.com/photo-1550002226-85c974a60c52?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80"
+    event-set__enter="_event: mouseenter; color: #181818"
+    event-set__leave="_event: mouseleave; color: #a6a5a7"></a-box>
+    </a-entity>
+
+    <!-- Нажатие мышки -->
+    <a-entity position="-1 0 4">
+    <a-text value="Touch" color="black" scale="0.7 0.7 0.7" position="-0.21 0.12 0.3"></a-text>
+    <a-box position="0 0 0" scale="0.5 0.5 0.5" color="#a6a5a7" 
+    material="src: https://images.unsplash.com/photo-1550002226-85c974a60c52?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80"
+    event-set__down="_event: mousedown; scale: 0.3 0.3 0.3; position: 0 2 0; color: #181818"
+    event-set__up="_event: mouseup; scale: 0.5 0.5 0.5; position: 0 0 0; color: #5f5e61"
+    ></a-box>
+    </a-entity>
+
+    <!-- Реагирует на включение фоновой музыки -->
+    <a-entity position="1 0 4">
+    <a-text value="Event" color="black" scale="0.7 0.7 0.7" position="-0.21 0.12 0.3"></a-text>
+    <a-box sound-and-event position="0 0 0" scale="0.5 0.5 0.5" color="#a6a5a7"
+    material="src: https://images.unsplash.com/photo-1550002226-85c974a60c52?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80"
+    sound="src: https://upload.wikimedia.org/wikipedia/commons/9/9a/Woof_%28Gravity_Sound%29.wav; maxDistance: 10; distanceModel: linear; volume:0.5; autoplay:true;"></a-box>
+    </a-entity>
+
+    <!-- Включение/выключение звука -->
+    <a-entity position="2 0 4">
+    <a-text value="On/off" color="black" scale="0.7 0.7 0.7" position="-0.28 0.12 0.3"></a-text>
+    <a-box position="0 0 0" scale="0.5 0.5 0.5" rotation="0 0 0" color="#a6a5a7"
+    material="src: https://images.unsplash.com/photo-1550002226-85c974a60c52?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80"
+    sound="src: https://upload.wikimedia.org/wikipedia/commons/9/9a/Woof_%28Gravity_Sound%29.wav; loop:true; maxDistance: 20; distanceModel: linear; volume:0; autoplay:true;"
+    event-set__down="_event: mousedown; color: #181818; sound.volume:1;"
+    event-set__up="_event: mouseup; color: #5f5e61; sound.volume:0;"></a-box>
+    </a-entity>
+    
 </a-scene>
 </body>
 </html>
